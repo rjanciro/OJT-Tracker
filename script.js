@@ -1,4 +1,6 @@
-const REQUIRED_HOURS = 500;
+function getTargetHours() {
+  return parseInt(localStorage.getItem("ojtTarget")) || 500;
+}
 
 let logs = JSON.parse(localStorage.getItem("ojtLogs")) || [];
 let filterFrom = "";
@@ -6,6 +8,7 @@ let filterTo = "";
 let filterSearch = "";
 
 initTheme();
+document.getElementById("targetHours").value = getTargetHours();
 render();
 updateSummary();
 renderMonthlySummary();
@@ -436,6 +439,19 @@ function deleteLog(id) {
   toast("Log deleted.");
 }
 
+// TARGET HOURS
+document.getElementById("targetHours").addEventListener("change", function () {
+  const val = parseInt(this.value);
+  if (val > 0 && val <= 9999) {
+    localStorage.setItem("ojtTarget", val);
+    save();
+    toast("Target hours updated to " + val);
+  } else {
+    this.value = getTargetHours();
+    toast("Enter a value between 1 and 9999.", true);
+  }
+});
+
 // FILTER EVENTS
 document.getElementById("filterFrom").addEventListener("change", function () {
   filterFrom = this.value;
@@ -510,9 +526,10 @@ function save() {
 }
 
 function updateSummary() {
+  const required = getTargetHours();
   const total = logs.reduce((s, l) => s + l.hours, 0);
-  const remaining = Math.max(REQUIRED_HOURS - total, 0);
-  const progress = Math.min((total / REQUIRED_HOURS) * 100, 100);
+  const remaining = Math.max(required - total, 0);
+  const progress = Math.min((total / required) * 100, 100);
 
   const totalEl = document.getElementById("totalHours");
   const remainEl = document.getElementById("remainingHours");
@@ -527,6 +544,7 @@ function updateSummary() {
 
   progressEl.textContent = progress.toFixed(1) + "%";
   progressFill.style.width = progress + "%";
+  document.getElementById("targetDisplay").textContent = required;
 
   document.getElementById("endDate").textContent = estimateEndDate(remaining);
 }

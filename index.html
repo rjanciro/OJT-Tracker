@@ -41,7 +41,7 @@
       <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
       <div class="card-label">Remaining Hours</div>
       <div class="card-value" id="remainingHours">0</div>
-      <div class="card-sub">of 500 required</div>
+      <div class="card-sub">of <span id="targetDisplay">500</span> required</div>
     </div>
     <div class="card" style="--card-color: #10b981;">
       <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
@@ -126,6 +126,13 @@
 
   <section class="form-section">
     <h2>Add / Update Log</h2>
+    <div class="target-row">
+      <label for="targetHours">Target Hours</label>
+      <div class="input-wrap" style="max-width: 140px;">
+        <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <input type="number" id="targetHours" min="1" max="9999">
+      </div>
+    </div>
     <form id="logForm">
       <input type="hidden" id="editId">
 
