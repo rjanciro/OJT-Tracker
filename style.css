@@ -1171,3 +1171,68 @@ button:active {
     flex-direction: column;
   }
 }
+
+@supports selector(:focus-visible) {
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+  button:focus:not(:focus-visible),
+  input:focus:not(:focus-visible),
+  select:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    padding: 0.5in;
+  }
+  .container {
+    animation: none;
+    max-width: 100%;
+  }
+  #particles,
+  .filter-bar,
+  .logs-actions,
+  .theme-toggle,
+  .form-section,
+  .btn-danger,
+  .action-btn {
+    display: none !important;
+  }
+  .header,
+  .card,
+  .stats-section,
+  .monthly-section,
+  .logs-section {
+    break-inside: avoid;
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .card::before {
+    display: none;
+  }
+  .progress-fill {
+    border: 1px solid #10b981;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

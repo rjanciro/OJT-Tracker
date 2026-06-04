@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OJT Tracker Dashboard</title>
+  <title>OJT Tracker - Track Your On-the-Job Training Hours</title>
+  <meta name="description" content="Track and visualize your OJT (On-the-Job Training) hours. Log daily time entries, monitor progress toward your target, and export reports.">
+  <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+  <meta property="og:title" content="OJT Tracker">
+  <meta property="og:description" content="Track and visualize your OJT training hours with daily logs, statistics, and progress tracking.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="og-image.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preload" as="style" href="style.css">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,5 +292,12 @@
 <div id="toast" class="toast"></div>
 
 <script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js');
+    });
+  }
+</script>
 </body>
 </html>

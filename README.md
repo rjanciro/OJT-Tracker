@@ -43,6 +43,8 @@
 
 No build step, no server, no dependencies.
 
+### Local Usage
+
 1. **Clone the repo**
    ```bash
    git clone https://github.com/rjanciro/OJT-Tracker.git
@@ -55,6 +57,28 @@ No build step, no server, no dependencies.
    Or simply double-click `index.html` in your file explorer.
 
 That's it. The app runs entirely in your browser.
+
+### Deploy to GitHub Pages
+
+1. Push the repository to GitHub.
+2. Go to your repo **Settings > Pages**.
+3. Under **Source**, select `Deploy from a branch`.
+4. Choose `main` (or `master`) as the branch and `/ (root)` as the folder.
+5. Click **Save**.
+
+Your site will be live at `https://<username>.github.io/<repo-name>/` within a few minutes.
+
+> The app includes a service worker for offline caching and a `manifest.json` for PWA support (Add to Home Screen on mobile).
+
+---
+
+## Production Features
+
+- **PWA Ready** — Service worker caches assets for offline access; installable via manifest.
+- **SEO Optimized** — Meta tags, Open Graph tags, and semantic HTML.
+- **Accessible** — Focus-visible outlines, reduced-motion support, semantic structure.
+- **Responsive** — Works on desktop, tablet, and mobile.
+- **Print Friendly** — Optimized print styles for generating paper records.
 
 ## Usage
 

@@ -1,8 +1,20 @@
 function getTargetHours() {
-  return parseInt(localStorage.getItem("ojtTarget")) || 500;
+  try {
+    return parseInt(localStorage.getItem("ojtTarget")) || 500;
+  } catch {
+    return 500;
+  }
 }
 
-let logs = JSON.parse(localStorage.getItem("ojtLogs")) || [];
+function loadLogs() {
+  try {
+    return JSON.parse(localStorage.getItem("ojtLogs")) || [];
+  } catch {
+    return [];
+  }
+}
+
+let logs = loadLogs();
 let filterFrom = "";
 let filterTo = "";
 let filterSearch = "";
@@ -362,6 +374,14 @@ function updateStats() {
   document.getElementById("longestDay").textContent = longest > 0 ? longest.toFixed(1) + "h" : "—";
 }
 
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
 function editLog(id) {
   const log = logs.find(l => l.id === id);
   if (!log) return;
@@ -463,10 +483,10 @@ document.getElementById("filterTo").addEventListener("change", function () {
   render();
 });
 
-document.getElementById("filterSearch").addEventListener("input", function () {
+document.getElementById("filterSearch").addEventListener("input", debounce(function () {
   filterSearch = this.value;
   render();
-});
+}, 200));
 
 document.getElementById("clearFiltersBtn").addEventListener("click", function () {
   document.getElementById("filterFrom").value = "";
@@ -485,13 +505,14 @@ document.getElementById("exportCsvBtn").addEventListener("click", function () {
     return;
   }
 
+  const esc = v => `"${String(v).replace(/"/g, '""')}"`;
   const headers = ["Date", "Time In", "Time Out", "Lunch Deducted", "Hours"];
   const rows = logs.map(log => [
-    log.date,
-    formatStoredTime(log.timeIn),
-    formatStoredTime(log.timeOut),
-    log.lunch ? "Yes" : "No",
-    log.hours.toFixed(1)
+    esc(log.date),
+    esc(formatStoredTime(log.timeIn)),
+    esc(formatStoredTime(log.timeOut)),
+    esc(log.lunch ? "Yes" : "No"),
+    esc(log.hours.toFixed(1))
   ]);
 
   const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
@@ -518,7 +539,12 @@ document.getElementById("clearAllBtn").addEventListener("click", function () {
 });
 
 function save() {
-  localStorage.setItem("ojtLogs", JSON.stringify(logs));
+  try {
+    localStorage.setItem("ojtLogs", JSON.stringify(logs));
+  } catch (e) {
+    toast("Storage full. Please export and clear some data.", true);
+    return;
+  }
   render();
   updateSummary();
   renderMonthlySummary();
@@ -552,12 +578,15 @@ function updateSummary() {
 function estimateEndDate(remaining) {
   if (logs.length === 0) return "\u2014";
   const avg = logs.reduce((s, l) => s + l.hours, 0) / logs.length;
+  if (avg <= 0) return "\u2014";
   let daysNeeded = Math.ceil(remaining / avg);
-  let date = new Date();
+  const lastLog = logs.reduce((latest, l) => l.date > latest ? l.date : latest, logs[0].date);
+  let date = new Date(lastLog + "T00:00:00");
+  date.setDate(date.getDate() + 1);
   while (daysNeeded > 0) {
-    date.setDate(date.getDate() + 1);
     const d = date.getDay();
     if (d !== 0 && d !== 6) daysNeeded--;
+    date.setDate(date.getDate() + 1);
   }
   return date.toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric"
