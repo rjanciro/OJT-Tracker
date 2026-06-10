@@ -525,6 +525,104 @@ document.getElementById("exportCsvBtn").addEventListener("click", function () {
   toast("CSV exported successfully!");
 });
 
+// EXPORT JSON
+document.getElementById("exportJsonBtn").addEventListener("click", function () {
+  if (logs.length === 0) {
+    toast("No data to export.", true);
+    return;
+  }
+  const data = { logs, target: getTargetHours() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "ojt_data_" + new Date().toISOString().slice(0, 10) + ".json";
+  link.click();
+  URL.revokeObjectURL(link.href);
+  toast("JSON exported successfully!");
+});
+
+// IMPORT
+document.getElementById("importBtn").addEventListener("click", function () {
+  document.getElementById("importInput").click();
+});
+
+document.getElementById("importInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    try {
+      if (file.name.endsWith(".json")) {
+        const data = JSON.parse(ev.target.result);
+        if (data.logs && Array.isArray(data.logs)) {
+          if (data.logs.length === 0) { toast("File contains no logs.", true); return; }
+          if (!confirm("Replace all " + logs.length + " current log entries with " + data.logs.length + " entries from file?")) return;
+          logs = data.logs;
+          if (data.target) localStorage.setItem("ojtTarget", data.target);
+          save();
+          toast("Imported " + logs.length + " log entries successfully!");
+        } else {
+          toast("Invalid JSON format. Expected { logs: [...] }.", true);
+        }
+      } else if (file.name.endsWith(".csv")) {
+        const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim());
+        if (lines.length < 2) { toast("CSV file has no data rows.", true); return; }
+        const headers = lines[0].split(",").map(h => h.replace(/^"|"$/g, "").trim());
+        const dateIdx = headers.findIndex(h => h.toLowerCase() === "date");
+        const timeInIdx = headers.findIndex(h => h.toLowerCase() === "time in");
+        const timeOutIdx = headers.findIndex(h => h.toLowerCase() === "time out");
+        const lunchIdx = headers.findIndex(h => h.toLowerCase() === "lunch deducted");
+        const hoursIdx = headers.findIndex(h => h.toLowerCase() === "hours");
+        if (dateIdx === -1 || timeInIdx === -1 || timeOutIdx === -1) {
+          toast("CSV missing required columns: Date, Time In, Time Out.", true);
+          return;
+        }
+        const parsed = [];
+        for (let i = 1; i < lines.length; i++) {
+          const vals = parseCSVLine(lines[i]);
+          const date = vals[dateIdx]?.trim();
+          const timeIn = vals[timeInIdx]?.trim();
+          const timeOut = vals[timeOutIdx]?.trim();
+          const lunch = lunchIdx !== -1 ? vals[lunchIdx]?.trim().toLowerCase() === "yes" : true;
+          const hours = hoursIdx !== -1 ? parseFloat(vals[hoursIdx]) : calculateHours(timeIn, timeOut, lunch);
+          if (date && timeIn && timeOut && hours > 0) {
+            parsed.push({ id: Date.now() + i, date, timeIn, timeOut, lunch, hours });
+          }
+        }
+        if (parsed.length === 0) { toast("No valid log entries found in CSV.", true); return; }
+        if (!confirm("Import " + parsed.length + " log entries from CSV? This will replace all current data.")) return;
+        logs = parsed;
+        save();
+        toast("Imported " + parsed.length + " log entries from CSV!");
+      }
+    } catch (err) {
+      toast("Import failed: " + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  this.value = "";
+});
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === "," && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
 // CLEAR ALL
 document.getElementById("clearAllBtn").addEventListener("click", function () {
   if (logs.length === 0) {
