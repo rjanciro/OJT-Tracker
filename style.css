@@ -581,7 +581,8 @@ th {
   color: var(--text-dim);
 }
 
-.filter-group input {
+.filter-group input,
+.filter-group select {
   width: 100%;
   padding: 8px 12px;
   font-size: 13px;
@@ -592,6 +593,11 @@ th {
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   font-family: inherit;
+}
+
+.filter-group select {
+  cursor: pointer;
+  appearance: auto;
 }
 
 .filter-group input:focus {

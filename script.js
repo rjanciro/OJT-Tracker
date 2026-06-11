@@ -18,6 +18,7 @@ let logs = loadLogs();
 let filterFrom = "";
 let filterTo = "";
 let filterSearch = "";
+let filterSort = "oldest";
 
 initTheme();
 document.getElementById("targetHours").value = getTargetHours();
@@ -243,7 +244,20 @@ function render() {
   table.innerHTML = "";
 
   const filtered = getFilteredLogs();
-  filtered.sort((a, b) => new Date(a.date + "T00:00:00") - new Date(b.date + "T00:00:00"));
+  switch (filterSort) {
+    case "latest":
+      filtered.sort((a, b) => new Date(b.date + "T00:00:00") - new Date(a.date + "T00:00:00"));
+      break;
+    case "oldest":
+      filtered.sort((a, b) => new Date(a.date + "T00:00:00") - new Date(b.date + "T00:00:00"));
+      break;
+    case "longest":
+      filtered.sort((a, b) => b.hours - a.hours);
+      break;
+    case "shortest":
+      filtered.sort((a, b) => a.hours - b.hours);
+      break;
+  }
 
   filtered.forEach((log, i) => {
     const row = table.insertRow();
@@ -488,13 +502,20 @@ document.getElementById("filterSearch").addEventListener("input", debounce(funct
   render();
 }, 200));
 
+document.getElementById("filterSort").addEventListener("change", function () {
+  filterSort = this.value;
+  render();
+});
+
 document.getElementById("clearFiltersBtn").addEventListener("click", function () {
   document.getElementById("filterFrom").value = "";
   document.getElementById("filterTo").value = "";
   document.getElementById("filterSearch").value = "";
+  document.getElementById("filterSort").value = "oldest";
   filterFrom = "";
   filterTo = "";
   filterSearch = "";
+  filterSort = "oldest";
   render();
 });
 
